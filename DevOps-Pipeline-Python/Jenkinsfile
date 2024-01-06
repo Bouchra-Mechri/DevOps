@@ -4,7 +4,7 @@ pipeline{
     stage('build'){
       steps{
         script{
-          sh 'docker build -t djangoapp:latest DevOps/DevOps-Pipeline-Python/Python/.' 
+          sh 'docker build -t djangoapp:latest ./DevOps-Pipeline-Python/Python/.' 
         }
       }
     }
