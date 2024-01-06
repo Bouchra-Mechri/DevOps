@@ -31,6 +31,13 @@ pipeline {
             steps{
                 script{
                      sh "sed -i 's|image: bouchra445/survey-app-img|image: bouchra445/survey-app-img:$BUILD_ID|' DevOps-Pipeline-Python/k8s/deployment.yaml"
+        
+        // Commit the changes to the git repository
+        sh "git config --global user.email 'mechrib466@gmail.com'"
+        sh "git config --global user.name 'Bouchra-Mechri'"
+        sh "git add DevOps-Pipeline-Python/k8s/deployment.yaml"
+        sh "git commit -m 'Update image tag to $BUILD_ID'"
+        sh "git push origin main"  // Replace 'main' with your branch name
                 }
             }
         }
