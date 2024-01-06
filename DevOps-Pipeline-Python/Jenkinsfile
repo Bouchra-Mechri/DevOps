@@ -9,7 +9,7 @@ pipeline{
       steps{
         script{
                       withCredentials([usernamePassword(credentialsId: rcred, usernameVariable: 'ACR_USER', passwordVariable: 'ACR_PASSWORD')]) {
-                        sh "docker login --username ${ACR_USER} --password ${ACR_PASSWORD} --name ${rname}"
+                        sh "docker login --username ${ACR_USER} --password ${ACR_PASSWORD}"
                         sh 'docker bouchra445/survey-app-img/:latest DevOps-Pipeline-Python/Python'
                         sh "docker push bouchra445/survey-app-img/:latest"
    
