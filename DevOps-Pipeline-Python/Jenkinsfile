@@ -4,54 +4,60 @@ pipeline {
         rcred = 'dockerhub'
         rname = 'survey-app-img'
     }
-    
 
     stages {
-         stage('Checkout'){
-            agent any
-            steps{
+        stage('Checkout') {
+            steps {
                 checkout scm
             }
         }
-        stage('build') {
+
+        stage('Build and Push Docker Image') {
             steps {
-             script {
-    withCredentials([usernamePassword(credentialsId: rcred, usernameVariable: 'ACR_USER', passwordVariable: 'ACR_PASSWORD')]) {
-        sh "docker login --username ${ACR_USER} --password ${ACR_PASSWORD}"
-        sh "docker build -t bouchra445/survey-app-img:$BUILD_ID DevOps-Pipeline-Python/Python"
-        sh "docker tag bouchra445/survey-app-img:$BUILD_ID bouchra445/survey-app-img:$BUILD_ID"
-        sh "docker push bouchra445/survey-app-img:$BUILD_ID"
-               
-    }
-}
-
-            }
-        }
-        stage('gitops'){
-            steps{
-                script{
-                     sh "sed -i 's|image: bouchra445/survey-app-img|image: bouchra445/survey-app-img:$BUILD_ID|' DevOps-Pipeline-Python/k8s/deployment.yaml"
-        withCredentials([string(credentialsId: 'gitjenkins', variable: 'GITHUB_TOKEN')]) {
-                          // Commit the changes to the git repository
-        sh "git config --global user.email 'mechrib466@gmail.com'"
-        sh "git config --global user.name 'Bouchra-Mechri'"
-
-                            // Use the https://x-access-token:<token>@github.com/... format for the remote URL
-                            def gitRemoteUrl = "https://x-access-token:${GITHUB_TOKEN}@github.com/Bouchra-Mechri/DevOps.git"
-                            sh "git remote set-url origin ${gitRemoteUrl}"
-git checkout -b main
-                            // Commit and push the changes
-                            sh 'git add .'
-                            sh 'git commit -m "Update version"'
-                            sh 'git push origin main'
-                        }
-      
-       
+                script {
+                    withCredentials([usernamePassword(credentialsId: rcred, usernameVariable: 'ACR_USER', passwordVariable: 'ACR_PASSWORD')]) {
+                        sh "docker login --username ${ACR_USER} --password ${ACR_PASSWORD}"
+                        sh "docker build -t bouchra445/survey-app-img:$BUILD_ID DevOps-Pipeline-Python/Python"
+                        sh "docker push bouchra445/survey-app-img:$BUILD_ID"
+                    }
                 }
             }
         }
-        stage('logout'){
-            agent any
+
+        stage('Update Kubernetes Deployment') {
+            steps {
+                script {
+                    sh "sed -i 's|image: bouchra445/survey-app-img|image: bouchra445/survey-app-img:$BUILD_ID|' DevOps-Pipeline-Python/k8s/deployment.yaml"
+                }
+            }
+        }
+
+        stage('GitOps') {
+            steps {
+                script {
+                    withCredentials([string(credentialsId: 'gitjenkins', variable: 'GITHUB_TOKEN')]) {
+                        // Configure git user
+                        sh "git config --global user.email 'mechrib466@gmail.com'"
+                        sh "git config --global user.name 'Bouchra-Mechri'"
+
+                        // Use the https://x-access-token:<token>@github.com/... format for the remote URL
+                        def gitRemoteUrl = "https://x-access-token:${GITHUB_TOKEN}@github.com/Bouchra-Mechri/DevOps.git"
+                        sh "git remote set-url origin ${gitRemoteUrl}"
+
+                        // Checkout 'main' branch if it exists, otherwise create it
+                        sh 'git fetch'
+                        sh 'git checkout -B main origin/main'
+
+                        // Commit and push the changes
+                        sh 'git add .'
+                        sh 'git commit -m "Update version"'
+                        sh 'git push origin main'
+                    }
+                }
+            }
+        }
+
+        stage('Logout') {
             steps {
                 sh 'docker logout'
             }
