@@ -46,9 +46,7 @@ git checkout -b main
                             sh 'git push origin main'
                         }
       
-        sh "git add DevOps-Pipeline-Python/k8s/deployment.yaml"
-        sh "git commit -m 'Update image tag to $BUILD_ID'"
-        sh "git push origin main"  // Replace 'main' with your branch name
+       
                 }
             }
         }
