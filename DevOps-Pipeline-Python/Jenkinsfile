@@ -27,7 +27,7 @@ pipeline {
 
             }
         }
-        steps('gitops'){
+        stage('gitops'){
             steps{
                 script{
                      sh "sed -i 's|image: bouchra445/survey-app-img|image: bouchra445/survey-app-img:$BUILD_ID|' DevOps-Pipeline-Python/k8s/deployment.yaml"
