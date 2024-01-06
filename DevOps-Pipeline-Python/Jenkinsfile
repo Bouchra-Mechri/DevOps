@@ -39,7 +39,7 @@ pipeline {
                             // Use the https://x-access-token:<token>@github.com/... format for the remote URL
                             def gitRemoteUrl = "https://x-access-token:${GITHUB_TOKEN}@github.com/Bouchra-Mechri/DevOps.git"
                             sh "git remote set-url origin ${gitRemoteUrl}"
-
+git checkout -b main
                             // Commit and push the changes
                             sh 'git add .'
                             sh 'git commit -m "Update version"'
