@@ -17,6 +17,6 @@ spec:
     spec:
       containers:
       - name: survey-app
-        image: bouchra445/survey-app-img:44:43:42:41:40:39:38:37:35
+        image: bouchra445/survey-app-img:45:44:43:42:41:40:39:38:37:35
         ports:
         - containerPort: 8000
