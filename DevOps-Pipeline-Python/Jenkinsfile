@@ -31,10 +31,21 @@ pipeline {
             steps{
                 script{
                      sh "sed -i 's|image: bouchra445/survey-app-img|image: bouchra445/survey-app-img:$BUILD_ID|' DevOps-Pipeline-Python/k8s/deployment.yaml"
-        
-        // Commit the changes to the git repository
+        withCredentials([string(credentialsId: 'gitjenkins', variable: 'GITHUB_TOKEN')]) {
+                          // Commit the changes to the git repository
         sh "git config --global user.email 'mechrib466@gmail.com'"
         sh "git config --global user.name 'Bouchra-Mechri'"
+
+                            // Use the https://x-access-token:<token>@github.com/... format for the remote URL
+                            def gitRemoteUrl = "https://x-access-token:${GITHUB_TOKEN}@github.com/Bouchra-Mechri/DevOps.git"
+                            sh "git remote set-url origin ${gitRemoteUrl}"
+
+                            // Commit and push the changes
+                            sh 'git add .'
+                            sh 'git commit -m "Update version"'
+                            sh 'git push origin main'
+                        }
+      
         sh "git add DevOps-Pipeline-Python/k8s/deployment.yaml"
         sh "git commit -m 'Update image tag to $BUILD_ID'"
         sh "git push origin main"  // Replace 'main' with your branch name
