@@ -20,7 +20,7 @@ pipeline {
                       sh "docker login --username ${ACR_USER} --password ${ACR_PASSWORD}"
         sh "docker build -t survey-app-img:$BUILD_ID DevOps-Pipeline-Python/Python"
                         sh "docker tag survey-app-img:$BUILD_ID survey-app-img:$BUILD_ID"
-        sh "docker push bouchra445/survey-app-img"
+        sh "docker push bouchra445/survey-app-img:$BUILD_ID "
                     }
                 }
             }
