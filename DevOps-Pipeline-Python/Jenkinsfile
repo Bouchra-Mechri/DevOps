@@ -4,7 +4,15 @@ pipeline {
         rcred = 'dockerhub'
         rname = 'survey-app-img'
     }
+    
+
     stages {
+         stage('Checkout'){
+            agent any
+            steps{
+                checkout scm
+            }
+        }
         stage('build') {
             steps {
                 script {
@@ -14,6 +22,12 @@ pipeline {
                         sh 'docker push bouchra445/survey-app-img:latest'
                     }
                 }
+            }
+        }
+        stage('logout'){
+            agent any
+            steps {
+                sh 'docker logout'
             }
         }
     }
