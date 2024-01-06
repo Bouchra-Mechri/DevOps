@@ -19,7 +19,8 @@ pipeline {
                     withCredentials([usernamePassword(credentialsId: rcred, usernameVariable: 'ACR_USER', passwordVariable: 'ACR_PASSWORD')]) {
                       sh "docker login --username ${ACR_USER} --password ${ACR_PASSWORD}"
         sh "docker build -t survey-app-img:$BUILD_ID DevOps-Pipeline-Python/Python"
-        sh "docker push bouchra445/survey-app-img:$BUILD_ID"
+                        sh "docker tag -t survey-app-img:$BUILD_ID survey-app-img:$BUILD_ID"
+        sh "docker push bouchra445/survey-app-img"
                     }
                 }
             }
