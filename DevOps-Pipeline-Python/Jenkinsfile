@@ -1,5 +1,5 @@
 pipeline {
-    agent any
+    agent any // Utilise n'importe quel agent disponible
     environment {
         rcred = 'dockerhub'
         rname = 'survey-app-img'
