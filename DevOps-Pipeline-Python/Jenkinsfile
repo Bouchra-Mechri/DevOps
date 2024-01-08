@@ -1,54 +1,59 @@
 pipeline {
     agent any // Utilise n'importe quel agent disponible
     environment {
-        rcred = 'dockerhub'
-        rname = 'survey-app-img'
+        rcred = 'dockerhub' // Identifiant des informations d'identification Docker Hub
+        rname = 'survey-app-img' // Nom de l'image Docker
     }
 
     stages {
-        stage('Checkout') {
+        stage('Checkout') { // Étape pour récupérer le code depuis le référentiel
             steps {
                 checkout scm
             }
         }
 
-        stage('Build and Push Docker Image') {
+        stage('Build and Push Docker Image') { // Étape pour construire et pousser une image Docker
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: rcred, usernameVariable: 'ACR_USER', passwordVariable: 'ACR_PASSWORD')]) {
+                         // Connexion à Docker Hub avec des informations d'identification
                         sh "docker login --username ${ACR_USER} --password ${ACR_PASSWORD}"
+                          // Construction de l'image Docker avec un tag spécifique et poussée vers Docker Hub
                         sh "docker build -t bouchra445/survey-app-img:$BUILD_ID DevOps-Pipeline-Python/Python"
                         sh "docker push bouchra445/survey-app-img:$BUILD_ID"
                     }
                 }
             }
         }
-
-        stage('Update Kubernetes Deployment') {
+// Étape pour mettre à jour le déploiement Kubernetes
+        stage('Update Kubernetes Deployment') { 
             steps {
                 script {
+                    // Modification du fichier de déploiement Kubernetes pour utiliser la nouvelle image
                     sh "sed -i 's|image: bouchra445/survey-app-img|image: bouchra445/survey-app-img:$BUILD_ID|' DevOps-Pipeline-Python/k8s/deployment.yaml"
                 }
             }
         }
 
-        stage('GitOps') {
+        stage('GitOps') { // Étape pour effectuer des opérations Git (GitOps)
             steps {
                 script {
                     withCredentials([string(credentialsId: 'gitjenkins', variable: 'GITHUB_TOKEN')]) {
-                        // Configure git user
+                       // Configuration des informations d'utilisateur Git
                         sh "git config --global user.email 'mechrib466@gmail.com'"
                         sh "git config --global user.name 'Bouchra-Mechri'"
 
                         // Use the https://x-access-token:<token>@github.com/... format for the remote URL
                         def gitRemoteUrl = "https://x-access-token:${GITHUB_TOKEN}@github.com/Bouchra-Mechri/DevOps.git"
+                         // Utilisation du format https://x-access-token:<token>@github.com/... pour l'URL distante
                         sh "git remote set-url origin ${gitRemoteUrl}"
 
-                        // Checkout 'main' branch if it exists, otherwise create it
+                       // Vérification de l'existence de la branche 'main', sinon création
                         sh 'git fetch'
                         sh 'git checkout -B main origin/main'
 
-                        // Commit and push the changes
+                        // Commit and push the changes 
+ // Commit et poussée des changements vers le référentiel distant
                         sh 'git add .'
                         sh 'git commit -m "Update version"'
                         sh 'git push origin main'
@@ -57,7 +62,7 @@ pipeline {
             }
         }
 
-        stage('Logout') {
+        stage('Logout') {  // Étape pour se déconnecter de Docker Hub
             steps {
                 sh 'docker logout'
             }
